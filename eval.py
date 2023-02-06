@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as img
 from random import randrange
 
-model = MobileNetLightningModel.load_from_checkpoint("lightning_logs/version_2/checkpoints/epoch=3-step=127.ckpt")
+model = MobileNetLightningModel.load_from_checkpoint("lightning_logs/version_10/checkpoints/epoch=6-step=1308.ckpt")
 # disable randomness, dropout, etc...
 model.eval()
 

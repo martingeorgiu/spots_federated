@@ -23,6 +23,16 @@ lesion_type_dict = {
     'mel': 'Melanoma',
 }
 
+lesion_type_id = [
+    'akiec',
+    'bcc',
+    'bkl',
+    'df',
+    'nv',
+    'vasc',
+    'mel',
+]
+
 class HAM10000Dataset(Dataset):
     def __init__(self, df, transform=None):
         self.df = df
@@ -100,17 +110,7 @@ class HAM10000DataModule(pl.LightningDataModule):
 
         # print('df_og')
         # print(df_og.count())
-        # counts_of_each_value = df_train['dx'].value_counts()
-        # highest_type, highest_number_of_referents = next(x for x in counts_of_each_value.items())
-        # for dx,_ in lesion_type_dict.items():
-        #     if(dx != highest_type):
-        #         data_aug_rate = floor(highest_number_of_referents/counts_of_each_value[dx])
-        #         df_train=df_train.append([df_train.loc[df_train['dx'] == dx,:]]*(data_aug_rate-1), ignore_index=True)
-        # train_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)),transforms.RandomHorizontalFlip(),
-        #                               transforms.RandomVerticalFlip(),transforms.RandomRotation(20),
-        #                               transforms.ColorJitter(brightness=0.1, contrast=0.1, hue=0.1),
-        #                                 transforms.ToTensor(), transforms.Normalize(norm_mean, norm_std)])
-
+      
         universal_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)), transforms.ToTensor()])
 
         df = df.drop_duplicates(subset=['lesion_id'], keep='first')
@@ -134,6 +134,21 @@ class HAM10000DataModule(pl.LightningDataModule):
         print('df_val')
         print(len(df_val.index))
         print(df_val['cell_type'].value_counts())
+
+
+        # counts_of_each_value = df_train['dx'].value_counts()
+        # highest_type, highest_number_of_referents = next(x for x in counts_of_each_value.items())
+        # test_dict = {}
+        # test_list = []
+        # for dx,_ in lesion_type_dict.items():
+        #     data_aug_rate = 1
+        #     if(dx != highest_type):
+        #         data_aug_rate = floor(highest_number_of_referents/counts_of_each_value[dx])
+        #     test_list.append(data_aug_rate)
+        #     # test_dict[lesion_type_id.index(dx)] = data_aug_rate
+        
+        # print('test_list')
+        # print(test_list)
 
         self.ham_train = HAM10000Dataset(df_train,transform=universal_transform)
         self.ham_val = HAM10000Dataset(df_val,transform=universal_transform)

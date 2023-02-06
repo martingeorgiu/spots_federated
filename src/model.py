@@ -1,6 +1,7 @@
 import torch
 import pytorch_lightning as pl
 import torchmetrics
+import torchvision
 from torchvision import models
 from src.datamodule import lesion_type_dict
 
@@ -33,7 +34,8 @@ class LightningModel(pl.LightningModule):
     def _shared_step(self, batch):
         features, true_labels = batch
         logits = self(features)
-        loss = torch.nn.functional.cross_entropy(logits, true_labels)
+        # loss = torchvision.ops.sigmoid_focal_loss(logits, true_labels)
+        loss = torch.nn.functional.cross_entropy(logits, true_labels,weight=torch.FloatTensor([23, 16, 7, 74, 1, 55, 8]))
         predicted_labels = torch.argmax(logits, dim=1)
 
         return loss, true_labels, predicted_labels
