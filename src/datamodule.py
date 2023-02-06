@@ -52,12 +52,12 @@ class HAM10000DataModule(pl.LightningDataModule):
 
     def setup(self, stage: str):
         print("Setting up data...")   
-        df_og = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
+        df = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
         # path = glob(os.path.join(self.dataset_directory, '*', '*.jpg'))
         # norm_mean,norm_std = compute_img_mean_std(path)
         # norm_mean = [0.7630392, 0.5456477, 0.57004845]
         # norm_std = [0.1409286, 0.15261266, 0.16997074]
-        df = df_og.copy()
+        # df = df_og.copy()
 
         # df_undup = df.groupby('lesion_id').count()
         # # now we filter out lesion_id's that have only one image associated with it
@@ -113,17 +113,22 @@ class HAM10000DataModule(pl.LightningDataModule):
 
         universal_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)), transforms.ToTensor()])
 
-        df_undup = df.drop_duplicates(subset=['lesion_id'], keep='first')
-        df_undup = df
-        print('df_undup')
-        print(len(df_undup.index))
-        print(df_undup['cell_type'].value_counts())
+        df = df.drop_duplicates(subset=['lesion_id'], keep='first')
+        df = df.reset_index()
+        print('df')
+        print(len(df.index))
+        print(df['cell_type'].value_counts())
 
-        y = df_undup['cell_type_idx']
+        y = df['cell_type_idx']
         df_train, df_val = train_test_split(df, test_size=0.2, random_state=1337,stratify=y)
 
 
+        df_train= df_train.reset_index()
+        df_val =df_val.reset_index()
         print('df_train')
+        print(len(df_train))
+        print(df_train['path'])
+        print(df_train['path'][2])
         print(len(df_train.index))
         print(df_train['cell_type'].value_counts())
         print('df_val')
@@ -132,7 +137,7 @@ class HAM10000DataModule(pl.LightningDataModule):
 
         self.ham_train = HAM10000Dataset(df_train,transform=universal_transform)
         self.ham_val = HAM10000Dataset(df_val,transform=universal_transform)
-        self.ham_test = HAM10000Dataset(df_og,transform=universal_transform)
+        self.ham_test = HAM10000Dataset(df,transform=universal_transform)
 
 
 
