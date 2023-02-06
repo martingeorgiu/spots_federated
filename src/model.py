@@ -49,7 +49,7 @@ class LightningModel(pl.LightningModule):
         with torch.no_grad():
             _, true_labels, predicted_labels = self._shared_step(batch)
         self.train_acc(predicted_labels, true_labels)
-        self.log("train_acc", self.train_acc, on_epoch=True, on_step=False)
+        self.log("train_acc", self.train_acc, on_epoch=True, on_step=True)
         self.model.train()
 
         return loss  # this is passed to the optimzer for training
@@ -62,7 +62,7 @@ class LightningModel(pl.LightningModule):
             "val_acc",
             self.val_acc,
             on_epoch=True,
-            on_step=False,
+            on_step=True,
             prog_bar=True,
         )
 
