@@ -1,0 +1,9 @@
+__pycache__
+.ipynb_checkpoints
+dataset
+lightning_logs
+logs
+poc_flower
+*.ipynb
+federated-models
+notebooks
