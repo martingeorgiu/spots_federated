@@ -120,11 +120,25 @@ class HAM10000DataModule(pl.LightningDataModule):
         df['train_or_val'] = df['train_or_val'].apply(get_val_rows)
         # filter out train rows
         df_train = df[df['train_or_val'] == 'train']
-        
+
         y = df_train['cell_type_idx']
         df_train, df_test = train_test_split(df_train, test_size=0.2, random_state=1337, stratify=y)
         df_train = df_train.reset_index()
         df_val = df_val.reset_index()
+
+
+        counts_of_each_value = df_train['dx'].value_counts()
+        *_, last = counts_of_each_value.items()
+        _, lowest_number_of_referents = last
+        test_list = []
+        for dx,_ in lesion_type_dict.items():
+            data_aug_rate = lowest_number_of_referents/counts_of_each_value[dx]
+            test_list.append(data_aug_rate)
+            # test_dict[lesion_type_id.index(dx)] = data_aug_rate
+        
+        print('test_list')
+        print(test_list)
+
 
         print("Train set size: ", len(df_train))
         print(df_train['cell_type'].value_counts())

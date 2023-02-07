@@ -2,11 +2,10 @@
 
 ## TODO
 
-- misto `cross_entropy` pouzit focal loss nebo aspon pridat weights
 - weight decay
 - momentum
-- pouzivat cely dataset
-- nejake random transformace?
+- chytrejsi rozdeleni datasetu aby vahy byly stejne
+- lepsi normalizace
 - nejake vic kompenzace nerovnomerneho datasetu?
 
 ## versions
@@ -16,4 +15,5 @@
 - v18 - zmensil jsem ty weights oproti jednicce, ale nahoby stagnujici vysledek - e9c03c0c82af9abf1125961ddd34949d4248190c
 - v19 - lr 0.001 - 63098fa92c06ce004beea67c4ba724fa05af6ad8
 - v26 - spravne learning rate;focal loss;pretrained weights;cisty dataset bez nasobeni;augmentace training; ea2e9b7dd6a01f71c2ef1b31f44703de266fc988
-- v27 - cross entropy se spravnymy vahami
+- v27 - cross entropy se spravnymy vahami - 3c03b514d5081670f7f98664165a6b4cee26eb74
+- v28 - weights podle train datasetu
