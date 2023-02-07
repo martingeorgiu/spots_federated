@@ -35,7 +35,8 @@ class LightningModel(pl.LightningModule):
         features, true_labels = batch
         logits = self(features)
         # loss = torchvision.ops.sigmoid_focal_loss(logits, true_labels)
-        loss = torch.nn.functional.cross_entropy(logits, true_labels,weight=torch.FloatTensor([23, 16, 7, 74, 1, 55, 8]))
+        # loss = torch.nn.functional.cross_entropy(logits, true_labels,weight=torch.FloatTensor([23/4, 16/4, 7/4, 74/4, 1, 55/4, 8/4]))
+        loss = torch.nn.functional.cross_entropy(logits, true_labels,weight=torch.FloatTensor([5, 4, 1.5, 18, 1, 12, 2]))
         predicted_labels = torch.argmax(logits, dim=1)
 
         return loss, true_labels, predicted_labels
