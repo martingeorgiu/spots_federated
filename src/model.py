@@ -7,7 +7,7 @@ from src.datamodule import lesion_type_dict
 
 # LightningModule that receives a PyTorch model as input
 class LightningModel(pl.LightningModule):
-    def __init__(self, model, num_classes, learning_rate: float = 0.01):
+    def __init__(self, model, num_classes, learning_rate: float = 0.001):
         super().__init__()
 
         self.learning_rate = learning_rate
