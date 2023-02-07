@@ -6,6 +6,8 @@ from torchvision import models
 from src.datamodule import lesion_type_dict
 from src.focal_loss import FocalLoss
 
+weights = [0.3516819571865443, 0.2237354085603113, 0.10464058234758872, 1.0, 0.01715137956748695, 0.8098591549295775, 0.10332434860736747]
+
 # LightningModule that receives a PyTorch model as input
 class LightningModel(pl.LightningModule):
     def __init__(self, model, num_classes, learning_rate: float):
@@ -25,7 +27,7 @@ class LightningModel(pl.LightningModule):
         self.val_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
         self.test_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
 
-        self.loss_fn = FocalLoss(class_num=num_classes)
+        # self.loss_fn = FocalLoss(class_num=num_classes)
         
     # Defining the forward method is only necessary 
     # if you want to use a Trainer's .predict() method (optional)
@@ -37,9 +39,8 @@ class LightningModel(pl.LightningModule):
     def _shared_step(self, batch):
         features, true_labels = batch
         logits = self(features)
-        loss = self.loss_fn(logits, true_labels)
-        # loss = torch.nn.functional.cross_entropy(logits, true_labels,weight=torch.FloatTensor([23/4, 16/4, 7/4, 74/4, 1, 55/4, 8/4]))
-        # loss = torch.nn.functional.cross_entropy(logits, true_labels)
+        # loss = self.loss_fn(logits, true_labels)
+        loss = torch.nn.functional.cross_entropy(logits, true_labels, weight=torch.FloatTensor(weights))
         predicted_labels = torch.argmax(logits, dim=1)
 
         return loss, true_labels, predicted_labels

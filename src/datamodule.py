@@ -65,6 +65,20 @@ class HAM10000DataModule(pl.LightningDataModule):
         df_og = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
         # path = glob(os.path.join(self.dataset_directory, '*', '*.jpg'))
         # norm_mean,norm_std = compute_img_mean_std(path)
+
+        # counts_of_each_value = df_og['dx'].value_counts()
+        # *_, last = counts_of_each_value.items()
+        # _, lowest_number_of_referents = last
+        # test_list = []
+        # for dx,_ in lesion_type_dict.items():
+        #     data_aug_rate = lowest_number_of_referents/counts_of_each_value[dx]
+        #     test_list.append(data_aug_rate)
+        #     # test_dict[lesion_type_id.index(dx)] = data_aug_rate
+        
+        # print('test_list')
+        # print(test_list)
+
+
         norm_mean = [0.7630392, 0.5456477, 0.57004845]
         norm_std = [0.1409286, 0.15261266, 0.16997074]
         df = df_og.copy()
@@ -87,7 +101,7 @@ class HAM10000DataModule(pl.LightningDataModule):
         df['duplicates'] = df['duplicates'].apply(get_duplicates)
         df_undup = df[df['duplicates'] == 'unduplicated']
         y = df_undup['cell_type_idx']
-        _, df_val = train_test_split(df_undup, test_size=0.2, random_state=1337, stratify=y)
+        _, df_val = train_test_split(df_undup, test_size=0.3, random_state=1337, stratify=y)
 
         # This set will be df_original excluding all rows that are in the val set
         # This function identifies if an image is part of the train or val set.
@@ -113,8 +127,11 @@ class HAM10000DataModule(pl.LightningDataModule):
         df_val = df_val.reset_index()
 
         print("Train set size: ", len(df_train))
+        print(df_train['cell_type'].value_counts())
         print("Val set size: ", len(df_val))
+        print(df_val['cell_type'].value_counts())
         print("Test set size: ", len(df_test))
+        print(df_test['cell_type'].value_counts())
 
 
         train_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)),transforms.RandomHorizontalFlip(),
