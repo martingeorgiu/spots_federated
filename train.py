@@ -1,5 +1,5 @@
 import pytorch_lightning as pl
-from src.model import MobileNetLightningModel
+from src.model import DenseNetLightningModel, MobileNetLightningModel
 from src.datamodule import HAM10000DataModule
 from pytorch_lightning.callbacks import ModelCheckpoint
 import time

@@ -1,9 +1,11 @@
 __pycache__
 .ipynb_checkpoints
 dataset
+dataset2
 lightning_logs
 logs
 poc_flower
 *.ipynb
 federated-models
 notebooks
+og.py

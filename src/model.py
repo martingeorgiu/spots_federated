@@ -4,10 +4,11 @@ import torchmetrics
 import torchvision
 from torchvision import models
 from src.datamodule import lesion_type_dict
+from src.focal_loss import FocalLoss
 
 # LightningModule that receives a PyTorch model as input
 class LightningModel(pl.LightningModule):
-    def __init__(self, model, num_classes, learning_rate: float = 0.001):
+    def __init__(self, model, num_classes, learning_rate: float):
         super().__init__()
 
         self.learning_rate = learning_rate
@@ -23,6 +24,8 @@ class LightningModel(pl.LightningModule):
         self.train_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
         self.val_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
         self.test_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
+
+        self.loss_fn = FocalLoss(class_num=num_classes)
         
     # Defining the forward method is only necessary 
     # if you want to use a Trainer's .predict() method (optional)
@@ -34,9 +37,9 @@ class LightningModel(pl.LightningModule):
     def _shared_step(self, batch):
         features, true_labels = batch
         logits = self(features)
-        # loss = torchvision.ops.sigmoid_focal_loss(logits, true_labels)
+        loss = self.loss_fn(logits, true_labels)
         # loss = torch.nn.functional.cross_entropy(logits, true_labels,weight=torch.FloatTensor([23/4, 16/4, 7/4, 74/4, 1, 55/4, 8/4]))
-        loss = torch.nn.functional.cross_entropy(logits, true_labels,weight=torch.FloatTensor([5, 4, 1.5, 18, 1, 12, 2]))
+        # loss = torch.nn.functional.cross_entropy(logits, true_labels)
         predicted_labels = torch.argmax(logits, dim=1)
 
         return loss, true_labels, predicted_labels
@@ -45,12 +48,7 @@ class LightningModel(pl.LightningModule):
         loss, true_labels, predicted_labels = self._shared_step(batch)
         self.log("train_loss", loss)
 
-        # Do another forward pass in .eval() mode to compute accuracy
-        # while accountingfor Dropout, BatchNorm etc. behavior
-        # during evaluation (inference)
-        self.model.eval()
-        with torch.no_grad():
-            _, true_labels, predicted_labels = self._shared_step(batch)
+
         self.train_acc(predicted_labels, true_labels)
         self.log("train_acc", self.train_acc, on_epoch=True, on_step=True)
         self.model.train()
@@ -81,8 +79,20 @@ class LightningModel(pl.LightningModule):
 
 class MobileNetLightningModel(LightningModel):
     input_size = 224
-    def __init__(self, learning_rate: float = 0.01):
+    def __init__(self, learning_rate: float = 0.001):
         no_of_classes = len(lesion_type_dict)
-        model = models.mobilenet_v3_small(weight=models.MobileNet_V3_Small_Weights.DEFAULT, num_classes=no_of_classes)
+        model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
+        num_ftrs = model.classifier[3].in_features
+        model.classifier[3] = torch.nn.Linear(num_ftrs,no_of_classes)
+        super().__init__(model, no_of_classes, learning_rate)
+
+
+class DenseNetLightningModel(LightningModel):
+    input_size = 224
+    def __init__(self, learning_rate: float = 0.001):
+        no_of_classes = len(lesion_type_dict)
+        model = models.densenet121(weights=models.DenseNet121_Weights.DEFAULT)
+        num_ftrs = model.classifier.in_features
+        model.classifier = torch.nn.Linear(num_ftrs, no_of_classes)
         super().__init__(model, no_of_classes, learning_rate)
 
