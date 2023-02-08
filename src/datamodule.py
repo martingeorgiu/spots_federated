@@ -62,83 +62,21 @@ class HAM10000DataModule(pl.LightningDataModule):
 
     def setup(self, stage: str):
         print("Setting up data...")   
-        df_og = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
+        df = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
         # path = glob(os.path.join(self.dataset_directory, '*', '*.jpg'))
         # norm_mean,norm_std = compute_img_mean_std(path)
 
-        # counts_of_each_value = df_og['dx'].value_counts()
-        # *_, last = counts_of_each_value.items()
-        # _, lowest_number_of_referents = last
-        # test_list = []
-        # for dx,_ in lesion_type_dict.items():
-        #     data_aug_rate = lowest_number_of_referents/counts_of_each_value[dx]
-        #     test_list.append(data_aug_rate)
-        #     # test_dict[lesion_type_id.index(dx)] = data_aug_rate
-        
-        # print('test_list')
-        # print(test_list)
+        allimages_norm_mean = [0.7630392, 0.5456477, 0.57004845]
+        allimages_norm_std = [0.1409286, 0.15261266, 0.16997074]
+    
 
+        df_train = df[df['data_type'] == 'train']
+        df_val = df[df['data_type'] == 'val']
+        df_test = df[df['data_type'] == 'test']
 
-        norm_mean = [0.7630392, 0.5456477, 0.57004845]
-        norm_std = [0.1409286, 0.15261266, 0.16997074]
-        df = df_og.copy()
-
-        df_undup = df.groupby('lesion_id').count()
-        # now we filter out lesion_id's that have only one image associated with it
-        df_undup = df_undup[df_undup['image_id'] == 1]
-        df_undup.reset_index(inplace=True)
-
-        def get_duplicates(x):
-            unique_list = list(df_undup['lesion_id'])
-            if x in unique_list:
-                return 'unduplicated'
-            else:
-                return 'duplicated'
-
-        # create a new colum that is a copy of the lesion_id column
-        df['duplicates'] = df['lesion_id']
-        # apply the function to this new column
-        df['duplicates'] = df['duplicates'].apply(get_duplicates)
-        df_undup = df[df['duplicates'] == 'unduplicated']
-        y = df_undup['cell_type_idx']
-        _, df_val = train_test_split(df_undup, test_size=0.3, random_state=1337, stratify=y)
-
-        # This set will be df_original excluding all rows that are in the val set
-        # This function identifies if an image is part of the train or val set.
-        def get_val_rows(x):
-            # create a list of all the lesion_id's in the val set
-            val_list = list(df_val['image_id'])
-            if str(x) in val_list:
-                return 'val'
-            else:
-                return 'train'
-
-        # identify train and val rows
-        # create a new colum that is a copy of the image_id column
-        df['train_or_val'] = df['image_id']
-        # apply the function to this new column
-        df['train_or_val'] = df['train_or_val'].apply(get_val_rows)
-        # filter out train rows
-        df_train = df[df['train_or_val'] == 'train']
-
-        y = df_train['cell_type_idx']
-        df_train, df_test = train_test_split(df_train, test_size=0.2, random_state=1337, stratify=y)
         df_train = df_train.reset_index()
         df_val = df_val.reset_index()
-
-
-        counts_of_each_value = df_train['dx'].value_counts()
-        *_, last = counts_of_each_value.items()
-        _, lowest_number_of_referents = last
-        test_list = []
-        for dx,_ in lesion_type_dict.items():
-            data_aug_rate = lowest_number_of_referents/counts_of_each_value[dx]
-            test_list.append(data_aug_rate)
-            # test_dict[lesion_type_id.index(dx)] = data_aug_rate
-        
-        print('test_list')
-        print(test_list)
-
+        df_test = df_test.reset_index()
 
         print("Train set size: ", len(df_train))
         print(df_train['cell_type'].value_counts())
@@ -147,14 +85,24 @@ class HAM10000DataModule(pl.LightningDataModule):
         print("Test set size: ", len(df_test))
         print(df_test['cell_type'].value_counts())
 
+        counts_of_each_value = df_train['dx'].value_counts()
+        *_, last = counts_of_each_value.items()
+        _, lowest_number_of_referents = last
+        test_list = []
+        for dx,_ in lesion_type_dict.items():
+            data_aug_rate = lowest_number_of_referents/counts_of_each_value[dx]
+            test_list.append(data_aug_rate)
+        
+        print('test_list')
+        print(test_list)
 
         train_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)),transforms.RandomHorizontalFlip(),
                                             transforms.RandomVerticalFlip(),transforms.RandomRotation(20),
                                             transforms.ColorJitter(brightness=0.1, contrast=0.1, hue=0.1),
-                                                transforms.ToTensor(), transforms.Normalize(norm_mean, norm_std)])
+                                                transforms.ToTensor(), transforms.Normalize(allimages_norm_mean, allimages_norm_std)])
         # define the transformation of the val images.
         val_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)), transforms.ToTensor(),
-                                            transforms.Normalize(norm_mean, norm_std)])
+                                            transforms.Normalize(allimages_norm_mean, allimages_norm_std)])
 
         self.ham_train = HAM10000Dataset(df_train,transform=train_transform)
         self.ham_val = HAM10000Dataset(df_val,transform=val_transform)

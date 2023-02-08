@@ -6,7 +6,7 @@ from torchvision import models
 from src.datamodule import lesion_type_dict
 from src.focal_loss import FocalLoss
 
-weights = [0.36283185840707965, 0.2222222222222222, 0.10594315245478036, 1.0, 0.019052044609665426, 0.8367346938775511, 0.09820359281437126]
+training_weights = [0.36283185840707965, 0.2222222222222222, 0.10594315245478036, 1.0, 0.019052044609665426, 0.8367346938775511, 0.09820359281437126]
 
 # LightningModule that receives a PyTorch model as input
 class LightningModel(pl.LightningModule):
