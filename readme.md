@@ -18,4 +18,4 @@
 - v26 - spravne learning rate;focal loss;pretrained weights;cisty dataset bez nasobeni;augmentace training; ea2e9b7dd6a01f71c2ef1b31f44703de266fc988
 - v27 - cross entropy se spravnymy vahami - 3c03b514d5081670f7f98664165a6b4cee26eb74
 - v28 - weights podle train datasetu
-- v30 - fix seg faultu
+- v30 - fix seg faultu 30epoch d077db96ce8c1052be119c5d765c497301d8e244

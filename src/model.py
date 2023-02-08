@@ -27,7 +27,7 @@ class LightningModel(pl.LightningModule):
         self.val_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
         self.test_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
 
-        # self.loss_fn = FocalLoss(class_num=num_classes)
+        self.loss_fn = FocalLoss(class_num=num_classes)
         
     # Defining the forward method is only necessary 
     # if you want to use a Trainer's .predict() method (optional)
@@ -39,8 +39,8 @@ class LightningModel(pl.LightningModule):
     def _shared_step(self, batch):
         features, true_labels = batch
         logits = self(features)
-        # loss = self.loss_fn(logits, true_labels)
-        loss = torch.nn.functional.cross_entropy(logits, true_labels, weight=torch.FloatTensor(weights))
+        loss = self.loss_fn(logits, true_labels)
+        # loss = torch.nn.functional.cross_entropy(logits, true_labels, weight=torch.FloatTensor(weights))
         predicted_labels = torch.argmax(logits, dim=1)
 
         return loss, true_labels, predicted_labels
@@ -64,7 +64,7 @@ class LightningModel(pl.LightningModule):
             "val_acc",
             self.val_acc,
             on_epoch=True,
-            on_step=True,
+            on_step=False,
             prog_bar=True,
         )
 
