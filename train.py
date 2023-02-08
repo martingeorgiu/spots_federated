@@ -11,7 +11,7 @@ def main() -> None:
 
     start_time = time.time()
     callbacks = [ModelCheckpoint(save_top_k=-1, mode='max', monitor="val_acc")]
-    trainer = pl.Trainer( precision='bf16', max_epochs=20,callbacks=callbacks,log_every_n_steps=10)
+    trainer = pl.Trainer( precision='bf16', max_epochs=30,callbacks=callbacks)
     trainer.fit(model, datamodule)
     trainer.test(model, datamodule)
 

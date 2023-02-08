@@ -164,12 +164,12 @@ class HAM10000DataModule(pl.LightningDataModule):
 
     def train_dataloader(self):
         # TODO: Add more train data when doing these augmentations
-        return DataLoader(self.ham_train, batch_size=self.batch_size, num_workers=10)
+        return DataLoader(self.ham_train, batch_size=self.batch_size, num_workers=0)
 
     def val_dataloader(self):
-        return DataLoader(self.ham_val, batch_size=self.batch_size, num_workers=10)
+        return DataLoader(self.ham_val, batch_size=self.batch_size, num_workers=0)
 
     def test_dataloader(self):
-        return DataLoader(self.ham_test, batch_size=self.batch_size, num_workers=10)
+        return DataLoader(self.ham_test, batch_size=self.batch_size, num_workers=0)
 
 

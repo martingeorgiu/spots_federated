@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as img
 from random import randrange
 
-model = MobileNetLightningModel.load_from_checkpoint("lightning_logs/version_27/checkpoints/epoch=0-step=208.ckpt")
+model = MobileNetLightningModel.load_from_checkpoint("lightning_logs/version_26/checkpoints/epoch=4-step=1114.ckpt")
 # disable randomness, dropout, etc...
 model.eval()
 
@@ -31,7 +31,7 @@ df_original = pd.read_csv(csv_file)
 
 
 random_index = randrange(10000)
-example = df_original.iloc[[10000]]
+example = df_original.iloc[[5000]]
 example = example.to_dict(orient='records')[0]
 real_dx_id = example['cell_type_idx']
 
