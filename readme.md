@@ -29,4 +29,4 @@
 - v30 - fix seg faultu crossentropy s training vahami 30epoch d077db96ce8c1052be119c5d765c497301d8e244
 - v31 - focal loss na 50 epoch alfa nula gamma 2 cde2b33dba51b2075d0b88fbbf9a2ee3deaf4971
 - v32 - stejny jako v31 ale ulozil jsem rozlozeni train/val/test + train shuffle - 17afafaa45a820dd9938f95600034f0c870795a5
-- buildeni slusnych modelu pres federaci
+- buildeni slusnych modelu pres federaci 7efd91ec2244b2ce719feb919866271a52d0b836

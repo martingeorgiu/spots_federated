@@ -10,27 +10,6 @@ from PIL import Image
 from torchvision import transforms
 from src.consts import spots_norm_mean, spots_norm_std
 
-
-lesion_type_dict = {
-    'akiec': 'Actinic keratoses',
-    'bcc': 'Basal cell carcinoma',
-    'bkl': 'Benign keratosis-like lesions ',
-    'df': 'Dermatofibroma',
-    'nv': 'Melanocytic nevi',
-    'vasc': 'Vascular lesions',
-    'mel': 'Melanoma',
-}
-
-lesion_type_id = [
-    'akiec',
-    'bcc',
-    'bkl',
-    'df',
-    'nv',
-    'vasc',
-    'mel',
-]
-
 class HAM10000Dataset(Dataset):
     def __init__(self, df, transform=None):
         self.df = df

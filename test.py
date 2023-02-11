@@ -4,9 +4,10 @@ import pytorch_lightning as pl
 import torch
 
 from torch import Tensor
+from src.get_model import getModel
 from src.flower_client import set_parameters_on_model
 
-from src.datamodule import HAM10000DataModule,lesion_type_dict
+from src.datamodule import HAM10000DataModule
 from src.model import MobileNetLightningModel
 
 from glob import glob 
@@ -22,26 +23,15 @@ import matplotlib.image as img
 from random import randrange
 import argparse
 
-if __name__ == "__main__":
+def main() -> None:
 
     argParser = argparse.ArgumentParser()
     argParser.add_argument("-p", "--path", help="path of the stored model", type=str, required=True)
     argParser.add_argument("-f", "--federated", help="use federated storage format", action=argparse.BooleanOptionalAction)
     args = argParser.parse_args()
 
-    def getModel() -> MobileNetLightningModel:
-        if args.federated:
-            print("Loading federated model")
-            model = MobileNetLightningModel()
-            arrays =  np.load(args.path, allow_pickle=True)
-            set_parameters_on_model(model.model.features, arrays[0:240])
-            set_parameters_on_model(model.model.classifier, arrays[240:244])
-            return model
-        else: 
-            print("Loading classic model")
-            return MobileNetLightningModel.load_from_checkpoint(args.path, map_location=torch.device('cpu'))
-
-    model = getModel()
+    model = getModel(federated=args.federated, path=args.path)
+    
     # {'test_acc': 0.8534688949584961, 'test_loss': 0.2627546191215515}
     # model = MobileNetLightningModel.load_from_checkpoint("lightning_logs/version_32/checkpoints/epoch=23-step=5015.ckpt")
     # {'test_acc': 0.8241626620292664, 'test_loss': 0.28230786323547363}
@@ -54,3 +44,6 @@ if __name__ == "__main__":
     datamodule = HAM10000DataModule()
     trainer = pl.Trainer( precision='bf16')
     trainer.test(model, datamodule)
+
+if __name__ == '__main__':    
+    main()

@@ -6,6 +6,6 @@ lightning_logs
 logs
 poc_flower
 *.ipynb
-federated-models
+federated-models*
 notebooks
 og.py

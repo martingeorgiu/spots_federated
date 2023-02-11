@@ -3,8 +3,6 @@ import os, cv2,itertools
 from tqdm import tqdm
 import numpy as np
 
-
-
 def compute_img_mean_std(image_paths):
     """
         computing the mean and std of three channel on the whole dataset,
