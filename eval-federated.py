@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 import torch
 
 from torch import Tensor
-from client import set_parameters_on_model
+from src.flower_client import set_parameters_on_model
 
 from src.datamodule import HAM10000DataModule,lesion_type_dict
 from src.model import MobileNetLightningModel

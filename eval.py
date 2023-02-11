@@ -19,13 +19,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as img
 from random import randrange
+from src.consts import spots_norm_mean, spots_norm_std
 
-model = MobileNetLightningModel.load_from_checkpoint("lightning_logs/version_26/checkpoints/epoch=4-step=1114.ckpt")
+model = MobileNetLightningModel.load_from_checkpoint("lightning_logs/version_32/checkpoints/epoch=45-step=9613.ckpt")
 # disable randomness, dropout, etc...
 model.eval()
 
 
-all_image_path = glob(os.path.join('dataset', '*', '*.jpg'))
 csv_file = os.path.join('dataset', 'HAM10000_metadata.csv')
 df_original = pd.read_csv(csv_file)
 
@@ -35,9 +35,8 @@ example = df_original.iloc[[5000]]
 example = example.to_dict(orient='records')[0]
 real_dx_id = example['cell_type_idx']
 
-norm_mean = [0.7630392, 0.5456477, 0.57004845]
-norm_std = [0.1409286, 0.15261266, 0.16997074]
-trans = transforms.Compose([transforms.Resize((MobileNetLightningModel.input_size,MobileNetLightningModel.input_size)),transforms.ToTensor(), transforms.Normalize(norm_mean, norm_std)])
+
+trans = transforms.Compose([transforms.Resize((MobileNetLightningModel.input_size,MobileNetLightningModel.input_size)),transforms.ToTensor(), transforms.Normalize(spots_norm_mean, spots_norm_std)])
 rawImage = Image.open(example['path'])
 x: Tensor = trans(rawImage)
 x = x.unsqueeze(0)

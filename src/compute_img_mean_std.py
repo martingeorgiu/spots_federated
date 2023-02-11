@@ -1,3 +1,4 @@
+from glob import glob
 import os, cv2,itertools
 from tqdm import tqdm
 import numpy as np
@@ -35,3 +36,7 @@ def compute_img_mean_std(image_paths):
     print("normMean = {}".format(means))
     print("normStd = {}".format(stdevs))
     return means,stdevs
+
+if __name__ == "__main__":
+    path = glob(os.path.join('../dataset', '*', '*.jpg'))
+    norm_mean,norm_std = compute_img_mean_std(path)

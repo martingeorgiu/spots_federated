@@ -1,17 +1,15 @@
-from glob import glob
-from math import floor
+import numpy as np
+import datetime
 import os
 import torch
 from torch.utils.data import DataLoader,Dataset
-from torch.utils.data import random_split
 import pytorch_lightning as pl
 from PIL import Image
 import pandas as pd
 from PIL import Image
 from torchvision import transforms
-from sklearn.model_selection import train_test_split
+from src.consts import spots_norm_mean, spots_norm_std
 
-from src.utils import compute_img_mean_std
 
 lesion_type_dict = {
     'akiec': 'Actinic keratoses',
@@ -52,57 +50,68 @@ class HAM10000Dataset(Dataset):
         return X, y
 
 class HAM10000DataModule(pl.LightningDataModule):
-    def __init__(self, dataset_directory: str = "dataset", metadata_file: str = "HAM10000_metadata.csv", batch_size: int = 32, input_size: int = 224):
+    # units are counted from 0 to no_of_units-1
+    def __init__(self, dataset_directory: str = "dataset", metadata_file: str = "HAM10000_metadata.csv", batch_size: int = 32, input_size: int = 224, unit:int = 0, no_of_units:int = 1):
         super().__init__()
 
         self.dataset_directory = dataset_directory
         self.metadata_file = metadata_file
         self.batch_size = batch_size
         self.input_size = input_size
+        self.unit = unit
+        self.no_of_units = no_of_units
 
     def setup(self, stage: str):
         print("Setting up data...")   
-        df = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
-        # path = glob(os.path.join(self.dataset_directory, '*', '*.jpg'))
-        # norm_mean,norm_std = compute_img_mean_std(path)
+        df = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file)) 
 
-        allimages_norm_mean = [0.7630392, 0.5456477, 0.57004845]
-        allimages_norm_std = [0.1409286, 0.15261266, 0.16997074]
-    
+        # the code bellow can be used for making the dataset smaller for testing purposes        
+        # df_shuffled = df.sample(frac=1,random_state=1337) 
+        # df_split = np.array_split(df_shuffled, 10)
+        # df = df_split[0].reset_index()
+
+        
+        def get_subset(df_input: pd.DataFrame) -> pd.DataFrame:
+            df_shuffled = df_input.sample(frac=1,random_state=1337)
+            df_split = np.array_split(df_shuffled, self.no_of_units)
+            return df_split[self.unit].reset_index()
 
         df_train = df[df['data_type'] == 'train']
         df_val = df[df['data_type'] == 'val']
         df_test = df[df['data_type'] == 'test']
 
-        df_train = df_train.reset_index()
-        df_val = df_val.reset_index()
-        df_test = df_test.reset_index()
+        df_train = get_subset(df_train)
+        df_val = get_subset(df_val)
+        df_test = get_subset(df_test)
 
+        print("Unit: ", self.unit)
+        print("Number of units: ", self.no_of_units)
         print("Train set size: ", len(df_train))
-        print(df_train['cell_type'].value_counts())
+        # print(df_train['cell_type'].value_counts())
         print("Val set size: ", len(df_val))
-        print(df_val['cell_type'].value_counts())
+        # print(df_val['cell_type'].value_counts())
         print("Test set size: ", len(df_test))
-        print(df_test['cell_type'].value_counts())
+        # print(df_test['cell_type'].value_counts())
 
-        counts_of_each_value = df_train['dx'].value_counts()
-        *_, last = counts_of_each_value.items()
-        _, lowest_number_of_referents = last
-        test_list = []
-        for dx,_ in lesion_type_dict.items():
-            data_aug_rate = lowest_number_of_referents/counts_of_each_value[dx]
-            test_list.append(data_aug_rate)
+        # count up the weights for each class
+        # counts_of_each_value = df_train['dx'].value_counts()
+        # *_, last = counts_of_each_value.items()
+        # _, lowest_number_of_referents = last
+        # test_list = []
+        # for dx,_ in lesion_type_dict.items():
+        #     data_aug_rate = lowest_number_of_referents/counts_of_each_value[dx]
+        #     test_list.append(data_aug_rate)
         
-        print('test_list')
-        print(test_list)
+        # print('test_list')
+        # print(test_list)
 
         train_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)),transforms.RandomHorizontalFlip(),
                                             transforms.RandomVerticalFlip(),transforms.RandomRotation(20),
                                             transforms.ColorJitter(brightness=0.1, contrast=0.1, hue=0.1),
-                                                transforms.ToTensor(), transforms.Normalize(allimages_norm_mean, allimages_norm_std)])
+                                                transforms.ToTensor(), transforms.Normalize(spots_norm_mean, spots_norm_std)])
         # define the transformation of the val images.
         val_transform = transforms.Compose([transforms.Resize((self.input_size,self.input_size)), transforms.ToTensor(),
-                                            transforms.Normalize(allimages_norm_mean, allimages_norm_std)])
+                                            transforms.Normalize(spots_norm_mean, spots_norm_std)])
 
         self.ham_train = HAM10000Dataset(df_train,transform=train_transform)
         self.ham_val = HAM10000Dataset(df_val,transform=val_transform)
