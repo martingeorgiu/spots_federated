@@ -1,12 +1,15 @@
+import os
 from glob import glob
-import os, cv2,itertools
-from tqdm import tqdm
+
+import cv2
 import numpy as np
+from tqdm import tqdm
+
 
 def compute_img_mean_std(image_paths):
     """
-        computing the mean and std of three channel on the whole dataset,
-        first we should normalize the image from 0-255 to 0-1
+    computing the mean and std of three channel on the whole dataset,
+    first we should normalize the image from 0-255 to 0-1
     """
 
     img_h, img_w = 224, 224
@@ -21,7 +24,7 @@ def compute_img_mean_std(image_paths):
     imgs = np.stack(imgs, axis=3)
     print(imgs.shape)
 
-    imgs = imgs.astype(np.float32) / 255.
+    imgs = imgs.astype(np.float32) / 255.0
 
     for i in range(3):
         pixels = imgs[:, :, i, :].ravel()  # resize to one row
@@ -33,8 +36,9 @@ def compute_img_mean_std(image_paths):
 
     print("normMean = {}".format(means))
     print("normStd = {}".format(stdevs))
-    return means,stdevs
+    return means, stdevs
+
 
 if __name__ == "__main__":
-    path = glob(os.path.join('../dataset', '*', '*.jpg'))
-    norm_mean,norm_std = compute_img_mean_std(path)
+    path = glob(os.path.join("../dataset", "*", "*.jpg"))
+    norm_mean, norm_std = compute_img_mean_std(path)
