@@ -40,6 +40,8 @@ class HAM10000DataModule(pl.LightningDataModule):
         input_size: int = 224,
         unit: int = 0,
         no_of_units: int = 1,
+        # for testing purposes
+        minified: bool = False,
     ):
         super().__init__()
 
@@ -49,15 +51,19 @@ class HAM10000DataModule(pl.LightningDataModule):
         self.input_size = input_size
         self.unit = unit
         self.no_of_units = no_of_units
+        self.minified = minified
+        if minified:
+            print("WARNING: minified dataset is used!")
 
     def setup(self, stage: str):
         print("Setting up data...")
         df = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
 
         # the code bellow can be used for making the dataset smaller for testing purposes
-        df_shuffled = df.sample(frac=1, random_state=1337)
-        df_split = np.array_split(df_shuffled, 20)
-        df = df_split[0].reset_index()
+        if self.minified:
+            df_shuffled = df.sample(frac=1, random_state=1337)
+            df_split = np.array_split(df_shuffled, 20)
+            df = df_split[0].reset_index()
 
         def get_subset(df_input: pd.DataFrame) -> pd.DataFrame:
             df_shuffled = df_input.sample(frac=1, random_state=1337)

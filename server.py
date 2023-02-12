@@ -16,6 +16,12 @@ def main() -> None:
         help="run in simulated mode",
         action=argparse.BooleanOptionalAction,
     )
+    argParser.add_argument(
+        "-m",
+        "--minified",
+        help="only applicable in simulated mode, run with minified dataset",
+        action=argparse.BooleanOptionalAction,
+    )
     argParser.add_argument("-r", "--rounds", help="number of rounds", type=int, required=True)
     argParser.add_argument("-c", "--no_clients", help="number of clients", type=int, default=3)
 
@@ -37,7 +43,9 @@ def main() -> None:
 
     if simulated:
         fl.simulation.start_simulation(
-            client_fn=lambda cid: client_fn(unit=int(cid), no_units=no_clients),
+            client_fn=lambda cid: client_fn(
+                unit=int(cid), no_units=no_clients, minified=args.minified
+            ),
             num_clients=no_clients,
             config=fl.server.ServerConfig(num_rounds=rounds),
             strategy=strategy,

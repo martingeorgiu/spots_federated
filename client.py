@@ -7,7 +7,7 @@ from src.flower_client import FlowerClient
 from src.model import MobileNetLightningModel
 
 
-def client_fn(unit: int, no_units: int) -> FlowerClient:
+def client_fn(unit: int, no_units: int, minified: bool = False) -> FlowerClient:
     print("Creatign client...")
     print(f"unit: {unit}")
     print(f"no_units: {no_units}")
@@ -15,7 +15,7 @@ def client_fn(unit: int, no_units: int) -> FlowerClient:
     # Model and data
     model = MobileNetLightningModel()
 
-    dataModule = HAM10000DataModule(unit=unit, no_of_units=no_units)
+    dataModule = HAM10000DataModule(unit=unit, no_of_units=no_units, minified=minified)
     dataModule.setup("fit")
 
     # Flower client
