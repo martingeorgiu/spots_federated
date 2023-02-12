@@ -49,7 +49,7 @@ class FlowerClient(fl.client.NumPyClient):
         df = pd.read_csv(os.path.join(path, "metrics.csv"))
         metrics = get_train_acc(df) | get_val_dict(df)
         shutil.rmtree(path)
-        print(f"Metricsssssss: {metrics}")
+        print(f"Flower client fit metrics: {metrics}")
         return (
             self.get_parameters(config={}),
             len(self.train_loader.dataset) + len(self.val_loader.dataset),
@@ -64,7 +64,7 @@ class FlowerClient(fl.client.NumPyClient):
         test_step_log_dict = results[0]
         loss = test_step_log_dict["test_loss"]
 
-        return loss, len(self.test_loader.dataset), test_step_log_dict
+        return loss, len(self.test_loader.dataset), {"eval_acc": test_step_log_dict["test_acc"]}
 
 
 def get_parameters_from_model(model):

@@ -55,9 +55,9 @@ class HAM10000DataModule(pl.LightningDataModule):
         df = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
 
         # the code bellow can be used for making the dataset smaller for testing purposes
-        # df_shuffled = df.sample(frac=1,random_state=1337)
-        # df_split = np.array_split(df_shuffled, 10)
-        # df = df_split[0].reset_index()
+        df_shuffled = df.sample(frac=1, random_state=1337)
+        df_split = np.array_split(df_shuffled, 20)
+        df = df_split[0].reset_index()
 
         def get_subset(df_input: pd.DataFrame) -> pd.DataFrame:
             df_shuffled = df_input.sample(frac=1, random_state=1337)
@@ -119,9 +119,7 @@ class HAM10000DataModule(pl.LightningDataModule):
 
     def train_dataloader(self):
         # TODO: Add more train data when doing these augmentations
-        return DataLoader(
-            self.ham_train, batch_size=self.batch_size, shuffle=True, num_workers=0
-        )
+        return DataLoader(self.ham_train, batch_size=self.batch_size, shuffle=True, num_workers=0)
 
     def val_dataloader(self):
         return DataLoader(self.ham_val, batch_size=self.batch_size, num_workers=0)
