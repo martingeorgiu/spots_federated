@@ -4,7 +4,7 @@ import datetime
 import flwr as fl
 
 from client import client_fn
-from src.fed_avg import SaveModelStrategy, aggregate_eval, aggregate_fit
+from src.fed_strategies import FedProxSaved, aggregate_eval, aggregate_fit
 from src.tensorboard import tensorboard
 
 
@@ -34,9 +34,10 @@ def main() -> None:
     start_time = datetime.datetime.now().replace(microsecond=0).isoformat()
     suffix = "-simulated" if simulated else ""
     log_dir = f"federated-models{suffix}/{start_time}"
-    strategy = tensorboard(logdir=log_dir)(SaveModelStrategy)(
+    strategy = tensorboard(logdir=log_dir)(FedProxSaved)(
         log_dir,
         no_clients,
+        proximal_mu=0.2,
         fit_metrics_aggregation_fn=aggregate_fit,
         evaluate_metrics_aggregation_fn=aggregate_eval,
     )

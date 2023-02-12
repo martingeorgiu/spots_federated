@@ -30,3 +30,5 @@
 - v31 - focal loss na 50 epoch alfa nula gamma 2 cde2b33dba51b2075d0b88fbbf9a2ee3deaf4971
 - v32 - stejny jako v31 ale ulozil jsem rozlozeni train/val/test + train shuffle - 17afafaa45a820dd9938f95600034f0c870795a5
 - buildeni slusnych modelu pres federaci 7efd91ec2244b2ce719feb919866271a52d0b836
+- buildim ekvivalent simulaci federated-models/2023-02-11T01:00:29 sem federated-models-simulated/2023-02-12T12:42:35 af382d5d41f8203f53bb09a0026017846cd424b2
+- fedprox
