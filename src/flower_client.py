@@ -49,7 +49,7 @@ class FlowerClient(fl.client.NumPyClient):
 
         path = os.path.join("temp", "fit", id)
         df = pd.read_csv(os.path.join(path, "metrics.csv"))
-        metrics = get_train_acc(df) | get_val_dict(df)
+        metrics = get_metrics_from_fit(df)
         shutil.rmtree(path)
         print(f"Flower client fit metrics: {metrics}")
         return (
@@ -63,6 +63,9 @@ class FlowerClient(fl.client.NumPyClient):
 
         trainer = pl.Trainer(logger=False, enable_checkpointing=False)
         results = trainer.test(self.model, self.test_loader)
+
+        # the test always returns a list of one element,
+        # so we take the first one and we don't need to aggregate them
         test_step_log_dict = results[0]
         loss = test_step_log_dict["test_loss"]
 
@@ -79,17 +82,12 @@ def set_parameters_on_model(model, parameters):
     model.load_state_dict(state_dict, strict=True)
 
 
-def get_train_acc(df: pd.DataFrame) -> dict:
-    train_dict = {}
+def get_metrics_from_fit(df: pd.DataFrame) -> dict:
+    final_dict = {}
     if "train_acc_epoch" in df:
-        train_dict["train_acc"] = df["train_acc_epoch"].mean()
-    return train_dict
-
-
-def get_val_dict(df: pd.DataFrame) -> dict:
-    val_dict = {}
+        final_dict["train_acc"] = df["train_acc_epoch"].mean().item()
     if "val_loss" in df:
-        val_dict["val_loss"] = df["val_loss"].mean()
+        final_dict["val_loss"] = df["val_loss"].mean().item()
     if "val_acc" in df:
-        val_dict["val_acc"] = df["val_acc"].mean()
-    return val_dict
+        final_dict["val_acc"] = df["val_acc"].mean().item()
+    return final_dict

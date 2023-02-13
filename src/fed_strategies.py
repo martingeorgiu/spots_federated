@@ -91,25 +91,39 @@ def store_aggregated_parameters(
         np.save(f"{log_dir}/round-{server_round}-weights.npy", aggregated_ndarrays)
 
 
-def aggregate_fit(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    # Multiply accuracy of each client by number of examples used
-    train_acc = [num_examples * m["train_acc"] for num_examples, m in metrics]
-    val_loss = [num_examples * m["val_loss"] for num_examples, m in metrics]
-    val_acc = [num_examples * m["val_acc"] for num_examples, m in metrics]
-    no_examples = sum([num_examples for num_examples, _ in metrics])
+def aggregate_metric(metrics: List[Tuple[int, Metrics]], key: str) -> float:
+    # Multiply metric of each client by number of examples used
+    weighted_metrics = 0
+    no_examples = 0
+    for num_examples, m in metrics:
+        value = m.get(key)
+        if value is None:
+            continue
+        weighted_metrics += num_examples * value
+        no_examples += num_examples
 
-    aggregated = {
-        "train_acc": sum(train_acc) / no_examples,
-        "val_loss": sum(val_loss) / no_examples,
-        "val_acc": sum(val_acc) / no_examples,
+    if no_examples == 0:
+        return 0.0
+
+    # Aggregate and return custom metric (weighted average)
+    return weighted_metrics / no_examples
+
+
+def aggregate_fit(metrics: List[Tuple[int, Metrics]]) -> Metrics:
+    train_acc = aggregate_metric(metrics, "train_acc")
+    val_loss = aggregate_metric(metrics, "val_loss")
+    val_acc = aggregate_metric(metrics, "val_acc")
+
+    return {
+        "train_acc": train_acc,
+        "val_loss": val_loss,
+        "val_acc": val_acc,
     }
-    return aggregated
 
 
 def aggregate_eval(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    # Multiply accuracy of each client by number of examples used
-    accuracies = [num_examples * m["eval_acc"] for num_examples, m in metrics]
-    no_examples = sum([num_examples for num_examples, _ in metrics])
+    eval_acc = aggregate_metric(metrics, "eval_acc")
 
-    # Aggregate and return custom metric (weighted average)
-    return {"eval_acc": sum(accuracies) / no_examples}
+    return {
+        "eval_acc": eval_acc,
+    }
