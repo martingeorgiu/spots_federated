@@ -7,15 +7,8 @@
 - chytrejsi rozdeleni datasetu aby vahy byly stejne
 - lepsi normalizace
 - nejake vic kompenzace nerovnomerneho datasetu?
-- podle vysledku 28 zkusi jeste jednou 26 ale dele
-
-## jasne dalsi pokusy
-
-- cross entropy bez vah
-- cross entropy se 4 odpocninou snizeni
-- focus loss pridat taky nejaky alfa vahy asi 4 odmocninu snizeni
-- oversampling a trochu undersampling
-- fit/validate/train/test metody na traineru
+- mozne dalsi pokusy
+  - oversampling a trochu undersampling
 
 ## versions
 
@@ -31,4 +24,3 @@
 - v32 - stejny jako v31 ale ulozil jsem rozlozeni train/val/test + train shuffle - 17afafaa45a820dd9938f95600034f0c870795a5
 - buildeni slusnych modelu pres federaci 7efd91ec2244b2ce719feb919866271a52d0b836
 - buildim ekvivalent simulaci federated-models/2023-02-11T01:00:29 sem federated-models-simulated/2023-02-12T12:42:35 af382d5d41f8203f53bb09a0026017846cd424b2
-- fedprox
