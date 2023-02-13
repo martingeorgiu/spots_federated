@@ -12,6 +12,17 @@ training_weights = [
     0.09820359281437126,
 ]
 
+# weight calculated from training_weights taken to the power of 1/4
+reduced_training_weights = [
+    0.7761154935321088,
+    0.6865890479690392,
+    0.5705165179818953,
+    1.0,
+    0.3715227369341196,
+    0.9564162451145308,
+    0.5597986466874496,
+]
+
 lesion_type_dict = {
     "akiec": "Actinic keratoses",
     "bcc": "Basal cell carcinoma",

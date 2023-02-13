@@ -1,9 +1,11 @@
+from math import sqrt
+
 import pytorch_lightning as pl
 import torch
 import torchmetrics
 from torchvision import models
 
-from src.consts import lesion_type_dict
+from src.consts import lesion_type_dict, reduced_training_weights
 from src.focal_loss import FocalLoss
 
 
@@ -26,7 +28,9 @@ class LightningModel(pl.LightningModule):
         self.val_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
         self.test_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
 
-        self.loss_fn = FocalLoss(class_num=num_classes)
+        self.loss_fn = FocalLoss(
+            class_num=num_classes, alpha=torch.FloatTensor(reduced_training_weights)
+        )
 
     # Defining the forward method is only necessary
     # if you want to use a Trainer's .predict() method (optional)
@@ -82,9 +86,7 @@ class MobileNetLightningModel(LightningModel):
 
     def __init__(self, learning_rate: float = 0.001):
         no_of_classes = len(lesion_type_dict)
-        model = models.mobilenet_v3_small(
-            weights=models.MobileNet_V3_Small_Weights.DEFAULT
-        )
+        model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
         num_ftrs = model.classifier[3].in_features
         model.classifier[3] = torch.nn.Linear(num_ftrs, no_of_classes)
         super().__init__(model, no_of_classes, learning_rate)

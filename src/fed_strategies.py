@@ -5,7 +5,7 @@ import numpy as np
 from flwr.common import FitRes, Metrics, Parameters, Scalar, parameters_to_ndarrays
 from flwr.common.typing import MetricsAggregationFn
 from flwr.server.client_proxy import ClientProxy
-from flwr.server.strategy import FedAvg, FedProx
+from flwr.server.strategy import FedAvg, FedOpt, FedProx
 
 
 class FedAvgSaved(FedAvg):
@@ -32,6 +32,29 @@ class FedAvgSaved(FedAvg):
 
 
 class FedProxSaved(FedProx):
+    def __init__(self, log_dir: str, no_clients: int, **kwargs):
+        super().__init__(
+            min_available_clients=no_clients,
+            min_fit_clients=no_clients,
+            **kwargs,
+        )
+        self.log_dir = log_dir
+
+    def aggregate_fit(
+        self,
+        server_round: int,
+        results: List[Tuple[fl.server.client_proxy.ClientProxy, FitRes]],
+        failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
+    ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
+        print(f"aggregate_fit started of round {server_round}")
+        aggregated_parameters, aggregated_metrics = super().aggregate_fit(
+            server_round, results, failures
+        )
+        store_aggregated_parameters(self.log_dir, server_round, aggregated_parameters)
+        return aggregated_parameters, aggregated_metrics
+
+
+class FedOptSaved(FedOpt):
     def __init__(self, log_dir: str, no_clients: int, **kwargs):
         super().__init__(
             min_available_clients=no_clients,
