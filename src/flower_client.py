@@ -80,25 +80,16 @@ def set_parameters_on_model(model, parameters):
 
 
 def get_train_acc(df: pd.DataFrame) -> dict:
-    if not "train_acc_epoch" in df:
-        return {}
-    df = df[~df["train_acc_epoch"].isnull()]
-    if len(df.index) == 0:
-        return {}
-    train_acc_row = df.to_dict(orient="records")[0]
-    return {
-        "train_acc": train_acc_row["train_acc_epoch"],
-    }
+    train_dict = {}
+    if "train_acc_epoch" in df:
+        train_dict["train_acc"] = df["train_acc_epoch"].mean()
+    return train_dict
 
 
 def get_val_dict(df: pd.DataFrame) -> dict:
-    if not "val_loss" in df or not "val_acc" in df:
-        return {}
-    df = df[~df["val_loss"].isnull() & ~df["val_acc"].isnull()]
-    if len(df.index) == 0:
-        return {}
-    val_row = df.to_dict(orient="records")[0]
-    return {
-        "val_loss": val_row["val_loss"],
-        "val_acc": val_row["val_acc"],
-    }
+    val_dict = {}
+    if "val_loss" in df:
+        val_dict["val_loss"] = df["val_loss"].mean()
+    if "val_acc" in df:
+        val_dict["val_acc"] = df["val_acc"].mean()
+    return val_dict
