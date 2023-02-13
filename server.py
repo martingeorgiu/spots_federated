@@ -8,21 +8,32 @@ from src.fed_strategies import FedAvgSaved, FedOptSaved, FedProxSaved, aggregate
 from src.tensorboard import tensorboard
 
 
-def get_strategy(strategy: str, no_clients: int, log_dir: str) -> fl.server.strategy.Strategy:
+def get_strategy(
+    strategy: str, no_clients: int, log_dir: str, proximal_mu: float
+) -> fl.server.strategy.Strategy:
+    print(f"Running using strategy: {strategy}")
     if strategy == "fedavg":
-        return fl.server.strategy.FedAvg(
-            min_available_clients=no_clients, min_fit_clients=no_clients
+        return tensorboard(logdir=log_dir)(FedAvgSaved)(
+            log_dir,
+            no_clients,
+            fit_metrics_aggregation_fn=aggregate_fit,
+            evaluate_metrics_aggregation_fn=aggregate_eval,
         )
     elif strategy == "fedprox":
         return tensorboard(logdir=log_dir)(FedProxSaved)(
             log_dir,
             no_clients,
-            proximal_mu=0.2,
+            proximal_mu=proximal_mu,
             fit_metrics_aggregation_fn=aggregate_fit,
             evaluate_metrics_aggregation_fn=aggregate_eval,
         )
     elif strategy == "fedopt":
-        return FedOptSaved(log_dir, no_clients)
+        return tensorboard(logdir=log_dir)(FedOptSaved)(
+            log_dir,
+            no_clients,
+            fit_metrics_aggregation_fn=aggregate_fit,
+            evaluate_metrics_aggregation_fn=aggregate_eval,
+        )
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
 
@@ -41,32 +52,29 @@ def main() -> None:
         help="only applicable in simulated mode, run with minified dataset",
         action=argparse.BooleanOptionalAction,
     )
-    # argParser.add_argument("--strategy", help="type of strategy to use", type=str, required=True)
+    argParser.add_argument("--strategy", help="type of strategy to use", type=str, required=True)
     argParser.add_argument("-r", "--rounds", help="number of rounds", type=int, required=True)
     argParser.add_argument("-c", "--no_clients", help="number of clients", type=int, default=3)
+    argParser.add_argument(
+        "-pmu",
+        "--proximal_mu",
+        help="proximal_mu - only applicable for FedProx strategy",
+        type=float,
+        default=0.3,
+    )
 
     args = argParser.parse_args()
     simulated = args.simulated
     rounds = args.rounds
     no_clients = args.no_clients
+    strategy = args.strategy
+    proximal_mu = args.proximal_mu
 
     # Define strategy
     start_time = datetime.datetime.now().replace(microsecond=0).isoformat()
     suffix = "-simulated" if simulated else ""
     log_dir = f"federated-models{suffix}/{start_time}"
-    # strategy = tensorboard(logdir=log_dir)(FedOptSaved)(
-    #     log_dir,
-    #     no_clients,
-    #     fit_metrics_aggregation_fn=aggregate_fit,
-    #     evaluate_metrics_aggregation_fn=aggregate_eval,
-    # )
-    strategy = tensorboard(logdir=log_dir)(FedProxSaved)(
-        log_dir,
-        no_clients,
-        proximal_mu=0.3,
-        fit_metrics_aggregation_fn=aggregate_fit,
-        evaluate_metrics_aggregation_fn=aggregate_eval,
-    )
+    strategy = get_strategy(strategy, no_clients, log_dir, proximal_mu)
 
     if simulated:
         fl.simulation.start_simulation(
