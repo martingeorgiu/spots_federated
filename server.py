@@ -5,6 +5,7 @@ import flwr as fl
 
 from client import client_fn
 from src.fed_strategies import FedAvgSaved, FedOptSaved, FedProxSaved, aggregate_eval, aggregate_fit
+from src.save_setup import save_setup
 from src.tensorboard import tensorboard
 
 
@@ -79,7 +80,7 @@ def main() -> None:
     suffix = "-simulated" if simulated else ""
     log_dir = f"federated-models{suffix}/{strategy}/{start_time}"
     strategy = get_strategy(strategy, no_clients, log_dir, proximal_mu)
-
+    save_setup(log_dir)
     if simulated:
         fl.simulation.start_simulation(
             client_fn=lambda cid: client_fn(

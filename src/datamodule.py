@@ -8,7 +8,7 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-from src.consts import spots_norm_mean, spots_norm_std
+from src.consts import metadata_file_path, spots_norm_mean, spots_norm_std
 
 
 class HAM10000Dataset(Dataset):
@@ -35,7 +35,7 @@ class HAM10000DataModule(pl.LightningDataModule):
     def __init__(
         self,
         dataset_directory: str = "dataset",
-        metadata_file: str = "HAM10000_metadata.csv",
+        metadata_file: str = metadata_file_path,
         batch_size: int = 32,
         input_size: int = 224,
         unit: int = 0,
@@ -57,7 +57,7 @@ class HAM10000DataModule(pl.LightningDataModule):
 
     def setup(self, stage: str):
         print("Setting up data...")
-        df = pd.read_csv(os.path.join(self.dataset_directory, self.metadata_file))
+        df = pd.read_csv(self.metadata_file)
 
         # the code bellow can be used for making the dataset smaller for testing purposes
         if self.minified:

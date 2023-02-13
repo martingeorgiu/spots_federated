@@ -9,20 +9,15 @@ from PIL import Image
 from torch import Tensor
 from torchvision import transforms
 
-from src.consts import lesion_type_dict
-from src.consts import spots_norm_mean, spots_norm_std
+from src.consts import lesion_type_dict, metadata_file_path, spots_norm_mean, spots_norm_std
 from src.get_model import get_model
 from src.model import MobileNetLightningModel
 
 
 def main() -> None:
     argParser = argparse.ArgumentParser()
-    argParser.add_argument(
-        "-id", "--id", help="row id of the record", type=int, required=True
-    )
-    argParser.add_argument(
-        "-p", "--path", help="path of the stored model", type=str, required=True
-    )
+    argParser.add_argument("-id", "--id", help="row id of the record", type=int, required=True)
+    argParser.add_argument("-p", "--path", help="path of the stored model", type=str, required=True)
     argParser.add_argument(
         "-f",
         "--federated",
@@ -38,8 +33,7 @@ def main() -> None:
     model = get_model(federated=args.federated, path=args.path)
     model.eval()
 
-    csv_file = os.path.join("dataset", "HAM10000_metadata.csv")
-    df_original = pd.read_csv(csv_file)
+    df_original = pd.read_csv(metadata_file_path)
     example = df_original.iloc[[args.id]]
     example = example.to_dict(orient="records")[0]
     real_dx_id = example["cell_type_idx"]

@@ -42,3 +42,5 @@ lesion_type_id = [
     "vasc",
     "mel",
 ]
+
+metadata_file_path = "assets/HAM10000_metadata.csv"
