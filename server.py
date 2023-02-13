@@ -73,7 +73,7 @@ def main() -> None:
     # Define strategy
     start_time = datetime.datetime.now().replace(microsecond=0).isoformat()
     suffix = "-simulated" if simulated else ""
-    log_dir = f"federated-models{suffix}/{start_time}"
+    log_dir = f"federated-models{suffix}/{strategy}/{start_time}"
     strategy = get_strategy(strategy, no_clients, log_dir, proximal_mu)
 
     if simulated:
