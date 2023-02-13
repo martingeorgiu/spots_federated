@@ -39,6 +39,8 @@ class FlowerClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         self.set_parameters(parameters)
         id = str(uuid.uuid4())
+
+        # Utility for logging metrics somewher to then read them back and return
         logger = CSVLogger("temp", name="fit", version=id)
         trainer = pl.Trainer(
             max_epochs=self.train_epochs, logger=logger, enable_checkpointing=False

@@ -56,6 +56,9 @@ def main() -> None:
     argParser.add_argument("-r", "--rounds", help="number of rounds", type=int, required=True)
     argParser.add_argument("-c", "--no_clients", help="number of clients", type=int, default=3)
     argParser.add_argument(
+        "-te", "--train_epochs", help="number of train epochs per round", type=int, default=1
+    )
+    argParser.add_argument(
         "-pmu",
         "--proximal_mu",
         help="proximal_mu - only applicable for FedProx strategy",
@@ -65,9 +68,10 @@ def main() -> None:
 
     args = argParser.parse_args()
     simulated = args.simulated
+    strategy = args.strategy
     rounds = args.rounds
     no_clients = args.no_clients
-    strategy = args.strategy
+    train_epochs = args.train_epochs
     proximal_mu = args.proximal_mu
 
     # Define strategy
@@ -79,7 +83,10 @@ def main() -> None:
     if simulated:
         fl.simulation.start_simulation(
             client_fn=lambda cid: client_fn(
-                unit=int(cid), no_units=no_clients, minified=args.minified
+                unit=int(cid),
+                no_units=no_clients,
+                minified=args.minified,
+                train_epochs=train_epochs,
             ),
             num_clients=no_clients,
             config=fl.server.ServerConfig(num_rounds=rounds),
