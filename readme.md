@@ -12,6 +12,7 @@ Example command to run local simulation of federated learning using FedAvg:
 
 ## TODO
 
+- parametrized loss function even with it's params (like weights), using argparse
 - weight decay
 - momentum
 - chytrejsi rozdeleni datasetu aby vahy byly stejne
