@@ -53,15 +53,15 @@ def tensorboard(logdir: str) -> Callable[[Strategy], TBW]:
         + f"\n\t$ tensorboard --logdir {logdir}\033[39m\n"
     )
     # Create logdir if it does not yet exist
-    os.makedirs(logdir, exist_ok=True)
 
     # To allow multiple runs and group those we will create a subdir
     # in the logdir which is named as number of directories in logdir + 1
-    run_id = str(
-        len([name for name in os.listdir(logdir) if os.path.isdir(os.path.join(logdir, name))])
-    )
-    run_id = run_id + "-" + datetime.now().strftime("%Y%m%dT%H%M%S")
-    logdir_run = os.path.join(logdir, run_id)
+    # run_id = str(
+    #     len([name for name in os.listdir(logdir) if os.path.isdir(os.path.join(logdir, name))])
+    # )
+    # run_id = run_id + "-" + datetime.now().strftime("%Y%m%dT%H%M%S")
+    logdir_run = os.path.join(logdir, "tensorboard")
+    os.makedirs(logdir, exist_ok=True)
 
     def decorator(strategy_class: Strategy) -> TBW:
         """Return overloaded Strategy Wrapper."""

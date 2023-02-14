@@ -1,9 +1,12 @@
 import argparse
 import datetime
+import os
+from pathlib import Path
 
 import flwr as fl
 
 from client import client_fn
+from src.consts import get_alpha
 from src.fed_strategies import FedAvgSaved, FedOptSaved, FedProxSaved, aggregate_eval, aggregate_fit
 from src.save_setup import save_setup
 from src.tensorboard import tensorboard
@@ -13,16 +16,19 @@ def get_strategy(
     strategy: str, no_clients: int, log_dir: str, proximal_mu: float
 ) -> fl.server.strategy.Strategy:
     print(f"Running using strategy: {strategy}")
+    log_dir_models = log_dir + "/rounds"
+    os.makedirs(log_dir_models, exist_ok=True)
+
     if strategy == "fedavg":
         return tensorboard(logdir=log_dir)(FedAvgSaved)(
-            log_dir,
+            log_dir_models,
             no_clients,
             fit_metrics_aggregation_fn=aggregate_fit,
             evaluate_metrics_aggregation_fn=aggregate_eval,
         )
     elif strategy == "fedprox":
         return tensorboard(logdir=log_dir)(FedProxSaved)(
-            log_dir,
+            log_dir_models,
             no_clients,
             proximal_mu=proximal_mu,
             fit_metrics_aggregation_fn=aggregate_fit,
@@ -30,7 +36,7 @@ def get_strategy(
         )
     elif strategy == "fedopt":
         return tensorboard(logdir=log_dir)(FedOptSaved)(
-            log_dir,
+            log_dir_models,
             no_clients,
             fit_metrics_aggregation_fn=aggregate_fit,
             evaluate_metrics_aggregation_fn=aggregate_eval,
@@ -66,6 +72,16 @@ def main() -> None:
         type=float,
         default=0.3,
     )
+    argParser.add_argument(
+        "-a", "--alpha", help="alpha parameter of focal loss (only used when simulated)", type=str
+    )
+    argParser.add_argument(
+        "-g",
+        "--gamma",
+        help="gamma parameter of focal loss (only used when simulated)",
+        type=float,
+        default=2,
+    )
 
     args = argParser.parse_args()
     simulated = args.simulated
@@ -74,6 +90,7 @@ def main() -> None:
     no_clients = args.no_clients
     train_epochs = args.train_epochs
     proximal_mu = args.proximal_mu
+    alpha = get_alpha(args.alpha)
 
     # Define strategy
     start_time = datetime.datetime.now().replace(microsecond=0).isoformat()
@@ -88,6 +105,8 @@ def main() -> None:
                 no_units=no_clients,
                 minified=args.minified,
                 train_epochs=train_epochs,
+                alpha=alpha,
+                gamma=args.gamma,
             ),
             num_clients=no_clients,
             config=fl.server.ServerConfig(num_rounds=rounds),

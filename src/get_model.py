@@ -15,6 +15,4 @@ def get_model(federated: bool, path: str) -> MobileNetLightningModel:
         return model
     else:
         print("Loading classic model")
-        return MobileNetLightningModel.load_from_checkpoint(
-            path, map_location=torch.device("cpu")
-        )
+        return MobileNetLightningModel.load_from_checkpoint(path, map_location=torch.device("cpu"))

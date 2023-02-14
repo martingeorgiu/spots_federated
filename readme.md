@@ -12,11 +12,9 @@ Example command to run local simulation of federated learning using FedAvg:
 
 ## TODO
 
-- parametrized loss function even with it's params (like weights), using argparse
+- use checkpoint instead of npy (what exactly is the difference?)
 - weight decay
 - momentum
-- chytrejsi rozdeleni datasetu aby vahy byly stejne
-- lepsi normalizace
-- nejake vic kompenzace nerovnomerneho datasetu?
-- mozne dalsi pokusy
-  - oversampling a trochu undersampling
+- better normalization
+- other compensations of imbalanced dataset
+  - oversampling a undersampling

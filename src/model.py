@@ -1,4 +1,5 @@
 from math import sqrt
+from typing import Union
 
 import pytorch_lightning as pl
 import torch
@@ -11,7 +12,14 @@ from src.focal_loss import FocalLoss
 
 # LightningModule that receives a PyTorch model as input
 class LightningModel(pl.LightningModule):
-    def __init__(self, model, num_classes, learning_rate: float):
+    def __init__(
+        self,
+        model,
+        num_classes,
+        learning_rate: float,
+        alpha: Union[torch.FloatTensor, None],
+        gamma: Union[int, float] = 2,
+    ):
         super().__init__()
 
         self.learning_rate = learning_rate
@@ -28,9 +36,7 @@ class LightningModel(pl.LightningModule):
         self.val_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
         self.test_acc = torchmetrics.Accuracy(task=task, num_classes=num_classes)
 
-        self.loss_fn = FocalLoss(
-            class_num=num_classes, alpha=torch.FloatTensor(reduced_training_weights)
-        )
+        self.loss_fn = FocalLoss(class_num=num_classes, alpha=alpha, gamma=gamma)
 
     # Defining the forward method is only necessary
     # if you want to use a Trainer's .predict() method (optional)
@@ -43,7 +49,6 @@ class LightningModel(pl.LightningModule):
         features, true_labels = batch
         logits = self(features)
         loss = self.loss_fn(logits, true_labels)
-        # loss = torch.nn.functional.cross_entropy(logits, true_labels, weight=torch.FloatTensor(weights))
         predicted_labels = torch.argmax(logits, dim=1)
 
         return loss, true_labels, predicted_labels
@@ -84,12 +89,17 @@ class LightningModel(pl.LightningModule):
 class MobileNetLightningModel(LightningModel):
     input_size = 224
 
-    def __init__(self, learning_rate: float = 0.001):
+    def __init__(
+        self,
+        alpha: Union[torch.FloatTensor, None],
+        gamma: Union[int, float] = 2,
+        learning_rate: float = 0.001,
+    ):
         no_of_classes = len(lesion_type_dict)
         model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
         num_ftrs = model.classifier[3].in_features
         model.classifier[3] = torch.nn.Linear(num_ftrs, no_of_classes)
-        super().__init__(model, no_of_classes, learning_rate)
+        super().__init__(model, no_of_classes, learning_rate, alpha, gamma)
 
 
 class DenseNetLightningModel(LightningModel):

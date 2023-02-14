@@ -1,6 +1,9 @@
+import datetime
+import os
 import shlex
 import subprocess
 import sys
+from pathlib import Path
 
 
 def subprocess_cmd(command: str) -> bytes:
@@ -14,9 +17,13 @@ def subprocess_cmd(command: str) -> bytes:
 
 
 def save_setup(log_dir: str) -> None:
+    os.makedirs(log_dir, exist_ok=True)
+
     with open(f"{log_dir}/setup.txt", "wb") as f:
         hash = subprocess_cmd("git rev-parse --verify HEAD")
         status = subprocess_cmd("git status")
 
-        runner = f"Triggered by command\n{str(sys.argv)}\n"
+        start_time = datetime.datetime.now().replace(microsecond=0).isoformat()
+        runner = f"Triggered by command\n{str(sys.argv)}\n\nTime started\n{start_time}\n"
+
         f.write(runner.encode("utf-8") + hash + status)

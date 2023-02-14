@@ -1,8 +1,12 @@
+from typing import Union
+
+import torch
+
 spots_norm_mean = [0.7630392, 0.5456477, 0.57004845]
 spots_norm_std = [0.1409286, 0.15261266, 0.16997074]
 
 # weight calculated from training set, to tackle class imbalance
-training_weights = [
+proportional_training_weights = [
     0.36283185840707965,
     0.2222222222222222,
     0.10594315245478036,
@@ -44,3 +48,13 @@ lesion_type_id = [
 ]
 
 metadata_file_path = "assets/HAM10000_metadata.csv"
+
+
+def get_alpha(arg: Union[str, None]) -> Union[torch.FloatTensor, None]:
+    if arg == "proportional":
+        return torch.FloatTensor(proportional_training_weights)
+    if arg == "reduced":
+        return torch.FloatTensor(reduced_training_weights)
+    if arg is None:
+        return None
+    raise ValueError("Invalid value for alpha")
