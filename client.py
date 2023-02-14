@@ -63,10 +63,10 @@ def main() -> None:
     alpha = get_alpha(args.alpha)
 
     client = client_fn(
-        args.unit,
-        args.no_units,
-        args.minified == True,
-        args.train_epochs,
+        unit=args.unit,
+        no_units=args.no_units,
+        minified=args.minified == True,
+        train_epochs=args.train_epochs,
         alpha=alpha,
         gamma=args.gamma,
     )
