@@ -1,4 +1,4 @@
-# Federated learning of ANNs for image classification
+# Federated learning of ANNs for image classification of spots
 
 ## Setup
 
@@ -6,11 +6,11 @@ Download the dataset from [here](https://www.kaggle.com/datasets/kmader/skin-can
 
 ## Usage
 
-You can run following `./bin/run-proper-flower.sh` to run a real local federation with 3 clients using FedAvg with 50 rounds.
-
 Example command to run local simulation of federated learning using FedAvg:
 
 `python server.py --simulated --rounds 50 --strategy fedavg --train_epochs 3`
+
+You can also run following command `./bin/run-proper-flower.sh` to run a real local federation with 3 clients using FedAvg with 50 rounds. Beware that this command is only working on macOS.
 
 For additional documentation of all features of this example repo, feel free to dive into any of the root python files which all can be individually run. Also for simple docs you can add `--help` flag for basic explanation of the scripts.
 
